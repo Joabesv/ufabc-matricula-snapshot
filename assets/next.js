@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const courseSelect = document.getElementById('curso');
     if (courseSelect && studentData.courseId) {
-      courseSelect.value = studentData.courseId;
+      courseSelect.value = window.cursoAluno;
       const event = new Event('change');
       courseSelect.dispatchEvent(event);
     }
