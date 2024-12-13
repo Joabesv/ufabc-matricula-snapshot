@@ -1,125 +1,50 @@
-function verificaDia(i, a) {
-  switch (i.horarios[a].semana) {
-      case 0:
-          return "Domingo ";
-      case 1:
-          return "Segunda-feira ";
-      case 2:
-          return "Ter\xe7a-feira ";
-      case 3:
-          return "Quarta-feira ";
-      case 4:
-          return "Quinta-feira ";
-      case 5:
-          return "Sexta-feira ";
-      case 6:
-          return "S\xe1bado ";
-  }
+const DIAS_SEMANA = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+const HORARIOS = [
+    "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+    "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
+    "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30",
+    "20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00"
+];
+
+function verificaDia(disciplina, indiceHorario) {
+    return DIAS_SEMANA[disciplina.horarios[indiceHorario].semana] + " ";
 }
-function converteDia(i) {
-  switch (i) {
-      case 0:
-          return "Domingo ";
-      case 1:
-          return "Segunda-feira ";
-      case 2:
-          return "Ter\xe7a-feira ";
-      case 3:
-          return "Quarta-feira ";
-      case 4:
-          return "Quinta-feira ";
-      case 5:
-          return "Sexta-feira ";
-      case 6:
-          return "S\xe1bado ";
-  }
+
+function converteDia(indiceDia) {
+    return DIAS_SEMANA[indiceDia] + " ";
 }
-function verificaHora(i, a) {
-  var s = i.horarios[a].horas.length;
-  return "das " + i.horarios[a].horas[0] + " \xe0s " + i.horarios[a].horas[s - 1];
+
+function verificaHora(disciplina, indiceHorario) {
+    const horas = disciplina.horarios[indiceHorario].horas;
+    return `das ${horas[0]} às ${horas[horas.length - 1]}`;
 }
-function verificaPeriodicidade(i, a) {
-  return i.horarios[a].periodicidade_extenso;
+
+function verificaPeriodicidade(disciplina, indiceHorario) {
+    return disciplina.horarios[indiceHorario].periodicidade_extenso;
 }
+
 function clicar() {
   "display: none;" == $("div#calendario")[0].style.cssText
       ? (($("div#calendario")[0].style.cssText = "display: block;"), ($("div#disciplinaspegas")[0].style.cssText = "display: block;"))
       : (($("div#calendario")[0].style.cssText = "display: none;"), ($("div#disciplinaspegas")[0].style.cssText = "display: none"));
 }
-function retornaHorario(i) {
-  switch (i) {
-      case 0:
-          return "08:00";
-      case 1:
-          return "08:30";
-      case 2:
-          return "09:00";
-      case 3:
-          return "09:30";
-      case 4:
-          return "10:00";
-      case 5:
-          return "10:30";
-      case 6:
-          return "11:00";
-      case 7:
-          return "11:30";
-      case 8:
-          return "12:00";
-      case 9:
-          return "12:30";
-      case 10:
-          return "13:00";
-      case 11:
-          return "13:30";
-      case 12:
-          return "14:00";
-      case 13:
-          return "14:30";
-      case 14:
-          return "15:00";
-      case 15:
-          return "15:30";
-      case 16:
-          return "16:00";
-      case 17:
-          return "16:30";
-      case 18:
-          return "17:00";
-      case 19:
-          return "17:30";
-      case 20:
-          return "18:00";
-      case 21:
-          return "18:30";
-      case 22:
-          return "19:00";
-      case 23:
-          return "19:30";
-      case 24:
-          return "20:00";
-      case 25:
-          return "20:30";
-      case 26:
-          return "21:00";
-      case 27:
-          return "21:30";
-      case 28:
-          return "22:00";
-      case 29:
-          return "22:30";
-      case 30:
-          return "23:00";
-  }
+
+function retornaHorario(indice) {
+    return HORARIOS[indice] || "";
 }
-function quantosDias(i) {
-  var a = $(i)[0].id;
-  return todasDisciplinas[a].horarios.length;
+
+function quantosDias(elemento) {
+    const id = elemento.id;
+    return window.todasDisciplinas[id].horarios.length;
 }
-function periodicidadeDisciplina(i, a) {
-  var s = $(i)[0].id;
-  return todasDisciplinas[s].horarios[a].periodicidade_extenso;
+
+function periodicidadeDisciplina(elemento, indice) {
+    const id = elemento.id;
+    console.log(id)
+    return window.todasDisciplinas[id].horarios[indice].periodicidade_extenso;
 }
+
+
 function disciplinaConflitanteSemanal(i, a) {
   var s = $(i)[0].id,
       o = todasDisciplinas[s].horarios[a].semana,
