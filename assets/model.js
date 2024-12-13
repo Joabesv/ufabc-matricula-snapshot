@@ -45,19 +45,89 @@ function periodicidadeDisciplina(elemento, indice) {
 }
 
 
-function disciplinaConflitanteSemanal(i, a) {
-  var s = $(i)[0].id,
-      o = todasDisciplinas[s].horarios[a].semana,
-      r = todasDisciplinas[s].horarios[a].horas.length;
-  x = 0;
-  for (var n = []; x < r - 1; ) (n[x] = todasDisciplinas[s].horarios[a].horas[x][0] + todasDisciplinas[s].horarios[a].horas[x][1] + todasDisciplinas[s].horarios[a].horas[x][3] + todasDisciplinas[s].horarios[a].horas[x][4]), (x += 1);
-  for (x = 0; x < r - 1; ) {
-      var e = ".quinzenaum_" + o + "_" + n[x],
-          t = ".quinzenadois_" + o + "_" + n[x];
-      if ("rgb(0, 100, 0)" == $(e)[0].style.backgroundColor || "rgb(0, 100, 0)" == $(t)[0].style.backgroundColor || "rgb(29, 40, 163)" == $(e)[0].style.backgroundColor || "rgb(29, 40, 163)" == $(t)[0].style.backgroundColor) break;
-      return !1;
-  }
+function disciplinaConflitanteSemanal(elemento, indice) {
+    const id = elemento.id;
+    const disciplina = todasDisciplinas[id];
+    const semana = disciplina.horarios[indice].semana;
+    const horas = disciplina.horarios[indice].horas;
+
+    for (let i = 0; i < horas.length - 1; i++) {
+        const hora = horas[i].replace(':', '');
+        const seletorQuinzenaUm = `.quinzenaum_${semana}_${hora}`;
+        const seletorQuinzenaDois = `.quinzenadois_${semana}_${hora}`;
+        
+        if (document.querySelector(seletorQuinzenaUm)?.style.backgroundColor === "rgb(0, 100, 0)" ||
+            document.querySelector(seletorQuinzenaDois)?.style.backgroundColor === "rgb(0, 100, 0)" ||
+            document.querySelector(seletorQuinzenaUm)?.style.backgroundColor === "rgb(29, 40, 163)" ||
+            document.querySelector(seletorQuinzenaDois)?.style.backgroundColor === "rgb(29, 40, 163)") {
+            return true;
+        }
+    }
+    return false;
 }
+
+function disciplinaConflitanteQuinzenal(element, indice, quinzena) {
+    const id = element.id;
+    const disciplina = todasDisciplinas[id];
+    const semana = disciplina.horarios[indice].semana;
+    const horas = disciplina.horarios[indice].horas;
+    const prefix = quinzena === 1 ? ".quinzenaum_" : ".quinzenadois_";
+
+    return horas.slice(0, -1).some(hora => {
+        const horaFormatada = hora.replace(/:/g, '');
+        const selector = `${prefix}${semana}_${horaFormatada}`;
+        const cell = document.querySelector(selector);
+        return cell && (cell.style.backgroundColor === "rgb(0, 100, 0)" || cell.style.backgroundColor === "rgb(29, 40, 163)");
+    });
+}
+
+function verificaDisciplinaSelecionada(element, indice) {
+    const id = element.id;
+    const disciplina = todasDisciplinas[id];
+    const semana = disciplina.horarios[indice].semana;
+    const hora = disciplina.horarios[indice].horas[0].replace(/:/g, '');
+    
+    const seletorUm = `.quinzenaum_${semana}_${hora}`;
+    const seletorDois = `.quinzenadois_${semana}_${hora}`;
+    
+    return document.querySelector(seletorUm)?.classList.contains(id) ||
+           document.querySelector(seletorDois)?.classList.contains(id);
+}
+
+function pintarCalendarioQuinzenal(i, a, s) {
+    var o = $(i)[0].id,
+        r = todasDisciplinas[o].horarios[a].semana,
+        n = todasDisciplinas[o].horarios[a].horas.length;
+    x = 0;
+    for (var e = []; x < n - 1; ) (e[x] = todasDisciplinas[o].horarios[a].horas[x][0] + todasDisciplinas[o].horarios[a].horas[x][1] + todasDisciplinas[o].horarios[a].horas[x][3] + todasDisciplinas[o].horarios[a].horas[x][4]), (x += 1);
+    for (x = 0; x < e.length; ) {
+        if (1 == s) {
+            var t = ".quinzenaum_" + r + "_" + e[x];
+            "Campus Santo Andr\xe9" == todasDisciplinas[o].nome_campus ? ($(t)[0].style.backgroundColor = "rgb(0, 100, 0)") : ($(t)[0].style.backgroundColor = "rgb(29, 40, 163)"),
+                $(t)[0].classList.add(o),
+                ($(t)[0].innerHTML = todasDisciplinas[o].codigo);
+        } else if (2 == s) {
+            t = ".quinzenadois_" + r + "_" + e[x];
+            if (
+                ("Campus Santo Andr\xe9" == todasDisciplinas[o].nome_campus ? ($(t)[0].style.backgroundColor = "rgb(0, 100, 0)") : ($(t)[0].style.backgroundColor = "rgb(29, 40, 163)"),
+                $(t)[0].classList.add(o),
+                7 < todasDisciplinas[o].codigo.length)
+            )
+                var c =
+                    todasDisciplinas[o].codigo[0] +
+                    todasDisciplinas[o].codigo[1] +
+                    todasDisciplinas[o].codigo[2] +
+                    todasDisciplinas[o].codigo[3] +
+                    todasDisciplinas[o].codigo[4] +
+                    todasDisciplinas[o].codigo[5] +
+                    todasDisciplinas[o].codigo[6];
+            else c = todasDisciplinas[o].codigo;
+            $(t)[0].innerHTML = c;
+        }
+        x++;
+    }
+}
+  
 function pintarCalendarioSemanal(i, a) {
   var s = $(i)[0].id,
       o = todasDisciplinas[s].horarios[a].semana,
@@ -86,11 +156,13 @@ function pintarCalendarioSemanal(i, a) {
       ($(t)[0].innerHTML = c), x++;
   }
 }
+
 function alertaCalendario(i) {
   $(".conflito")[0].style.display = "block";
   var a = i.value;
   ($("input[value=" + a + "]")[0].checked = !1), ($("div#fundopreto")[0].style.display = "block");
 }
+
 function limpacorCalendarioSemanal(i, a) {
   var s = $(i)[0].id,
       o = todasDisciplinas[s].horarios[a].semana,
@@ -103,52 +175,12 @@ function limpacorCalendarioSemanal(i, a) {
       ($(e)[0].style.backgroundColor = ""), $(e)[0].classList.remove(s), ($(e)[0].innerHTML = ""), ($(t)[0].style.backgroundColor = ""), $(t)[0].classList.remove(s), ($(t)[0].innerHTML = ""), x++;
   }
 }
-function verificaDisciplinaSelecionada(i, a) {
-  var s = $(i)[0].id,
-      o = todasDisciplinas[s].horarios[a].semana,
-      r = todasDisciplinas[s].horarios[a].horas.length;
-  x = 0;
-  for (var n = []; x < r - 1; ) (n[x] = todasDisciplinas[s].horarios[a].horas[x][0] + todasDisciplinas[s].horarios[a].horas[x][1] + todasDisciplinas[s].horarios[a].horas[x][3] + todasDisciplinas[s].horarios[a].horas[x][4]), (x += 1);
-  var e = ".quinzenaum_" + o + "_" + n[(x = 0)],
-      t = ".quinzenadois_" + o + "_" + n[0];
-  return !(!$(e)[0].classList.contains(s) && !$(t)[0].classList.contains(s));
-}
+
 function fecharalerta() {
   ($(".conflito")[0].style.display = "none"), ($("div#fundopreto")[0].style.display = "none");
 }
-function pintarCalendarioQuinzenal(i, a, s) {
-  var o = $(i)[0].id,
-      r = todasDisciplinas[o].horarios[a].semana,
-      n = todasDisciplinas[o].horarios[a].horas.length;
-  x = 0;
-  for (var e = []; x < n - 1; ) (e[x] = todasDisciplinas[o].horarios[a].horas[x][0] + todasDisciplinas[o].horarios[a].horas[x][1] + todasDisciplinas[o].horarios[a].horas[x][3] + todasDisciplinas[o].horarios[a].horas[x][4]), (x += 1);
-  for (x = 0; x < e.length; ) {
-      if (1 == s) {
-          var t = ".quinzenaum_" + r + "_" + e[x];
-          "Campus Santo Andr\xe9" == todasDisciplinas[o].nome_campus ? ($(t)[0].style.backgroundColor = "rgb(0, 100, 0)") : ($(t)[0].style.backgroundColor = "rgb(29, 40, 163)"),
-              $(t)[0].classList.add(o),
-              ($(t)[0].innerHTML = todasDisciplinas[o].codigo);
-      } else if (2 == s) {
-          t = ".quinzenadois_" + r + "_" + e[x];
-          if (
-              ("Campus Santo Andr\xe9" == todasDisciplinas[o].nome_campus ? ($(t)[0].style.backgroundColor = "rgb(0, 100, 0)") : ($(t)[0].style.backgroundColor = "rgb(29, 40, 163)"),
-              $(t)[0].classList.add(o),
-              7 < todasDisciplinas[o].codigo.length)
-          )
-              var c =
-                  todasDisciplinas[o].codigo[0] +
-                  todasDisciplinas[o].codigo[1] +
-                  todasDisciplinas[o].codigo[2] +
-                  todasDisciplinas[o].codigo[3] +
-                  todasDisciplinas[o].codigo[4] +
-                  todasDisciplinas[o].codigo[5] +
-                  todasDisciplinas[o].codigo[6];
-          else c = todasDisciplinas[o].codigo;
-          $(t)[0].innerHTML = c;
-      }
-      x++;
-  }
-}
+
+
 function limpacorCalendarioQuinzenal(i, a, s) {
   var o = $(i)[0].id,
       r = todasDisciplinas[o].horarios[a].semana,
@@ -166,26 +198,7 @@ function limpacorCalendarioQuinzenal(i, a, s) {
       x++;
   }
 }
-function disciplinaConflitanteQuinzenal(i, a, s) {
-  var o = $(i)[0].id,
-      r = todasDisciplinas[o].horarios[a].semana,
-      n = todasDisciplinas[o].horarios[a].horas.length;
-  x = 0;
-  for (var e = []; x < n - 1; ) (e[x] = todasDisciplinas[o].horarios[a].horas[x][0] + todasDisciplinas[o].horarios[a].horas[x][1] + todasDisciplinas[o].horarios[a].horas[x][3] + todasDisciplinas[o].horarios[a].horas[x][4]), (x += 1);
-  for (x = 0; x < n - 1; ) {
-      if (1 == s) {
-          var t = ".quinzenaum_" + r + "_" + e[x];
-          if ("rgb(0, 100, 0)" == $(t)[0].style.backgroundColor || "rgb(29, 40, 163)" == $(t)[0].style.backgroundColor) break;
-          return !1;
-      }
-      if (2 == s) {
-          t = ".quinzenadois_" + r + "_" + e[x];
-          if ("rgb(0, 100, 0)" == $(t)[0].style.backgroundColor || "rgb(29, 40, 163)" == $(t)[0].style.backgroundColor) break;
-          return !1;
-      }
-      x += 1;
-  }
-}
+
 function buscaNome() {
   var i = $("input#busca")[0].value.toUpperCase();
   for (x = 0, qtddisciplinas = $("#tabeladisciplinas > tr > td:nth-child(2)").length; x < qtddisciplinas; ) {
