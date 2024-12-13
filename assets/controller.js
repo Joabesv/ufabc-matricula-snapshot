@@ -4,7 +4,7 @@ function verificacao(inputElement) {
     const disciplineValue = inputElement.value;
 
     // Extract discipline code
-    const disciplineCode = todasDisciplinas[elementId].codigo
+    const disciplineCode = window.todasDisciplinas[elementId].codigo
         .split('')
         .filter(char => char !== '-')
         .join('');
