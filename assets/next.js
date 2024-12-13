@@ -9,7 +9,7 @@ function sigToMatriculaCourseId(matriculaCourseId) {
 
 document.addEventListener('DOMContentLoaded', function () {
   function fetchStudentInfo() {
-    return fetch('http://localhost:5000/entities/students/student?ra=1222&login=joabe.silva')
+    return fetch('http://localhost:5000/entities/students/student?ra=11202232364&login=joabe.silva')
       .then(response => {
         if (!response.ok) {
           throw new Error('Failed to fetch student information');
