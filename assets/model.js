@@ -93,6 +93,332 @@ function verificaDisciplinaSelecionada(element, indice) {
            document.querySelector(seletorDois)?.classList.contains(id);
 }
 
+function alertaCalendario(element) {
+    document.querySelector(".conflito").style.display = "block";
+    document.querySelector(`input[value="${element.value}"]`).checked = false;
+    document.querySelector("div#fundopreto").style.display = "block";
+}
+
+function fecharalerta() {
+    document.querySelector(".conflito").style.display = "none";
+    document.querySelector("div#fundopreto").style.display = "none";
+}
+
+function buscaNome() {
+    const busca = document.querySelector("input#busca").value.toUpperCase();
+    const rows = document.querySelectorAll("#tabeladisciplinas > tr");
+    
+    rows.forEach(row => {
+        const disciplina = row.querySelector("td:nth-child(3)");
+        if (disciplina) {
+            row.style.display = disciplina.innerHTML.toUpperCase().includes(busca) ? "" : "none";
+        }
+    });
+}
+
+function buscaCampus(campus) {
+    const rows = document.querySelectorAll("#tabeladisciplinas > tr");
+    const campusNome = campus === "sa" ? "Santo André" : "São Bernardo";
+    
+    rows.forEach(row => {
+        const disciplina = row.querySelector("td:nth-child(3)");
+        if (disciplina) {
+            row.style.display = disciplina.innerHTML.includes(campusNome) ? "" : "none";
+        }
+    });
+}
+
+function buscaVagas() {
+    const rows = document.querySelectorAll("#tabeladisciplinas > tr");
+    
+    rows.forEach(row => {
+        const vagas = row.querySelector("td[value]");
+        const requisicoes = vagas?.nextElementSibling;
+        if (vagas && requisicoes && parseInt(requisicoes.innerHTML) >= parseInt(vagas.innerHTML)) {
+            row.style.display = "none";
+        }
+    });
+}
+
+function insereDisciplina(id) {
+    window.disciplinas.push(id);
+    mesmaDisciplina();
+}
+
+function mesmaDisciplina() {
+    window.disciplinas.forEach(disciplina => {
+        document.querySelector(`tr[value="${disciplina}"]`)?.classList.add("mesmadisciplina");
+    });
+}
+
+function insereCodigo(codigo) {
+    window.codigosdisciplinas.push(codigo);
+}
+
+function removeCodigo(codigo) {
+    const index = window.codigosdisciplinas.indexOf(codigo);
+    if (index > -1) {
+        window.codigosdisciplinas.splice(index, 1);
+    }
+    document.querySelector(`tr.${codigo}`)?.classList.remove("mesmocodigo");
+}
+
+function removeDisciplina(id) {
+    const index = window.disciplinas.indexOf(id);
+    if (index > -1) {
+        disciplinas.splice(index, 1);
+    }
+    document.querySelector(`tr[value="${id}"]`)?.classList.remove("mesmadisciplina");
+}
+
+function repreencherDisciplinas() {
+    window.disciplinas.forEach(disciplina => {
+        document.querySelector(`input[value="${disciplina}"]`).checked = true;
+    });
+}
+
+function organizaHorarios(disciplina) {
+    const horarios = disciplina.horarios.map((horario, index) => {
+        const dia = verificaDia(disciplina, index);
+        const hora = verificaHora(disciplina, index);
+        const periodicidade = verificaPeriodicidade(disciplina, index);
+        return `${dia}${hora}${periodicidade}`;
+    });
+
+    return horarios.length === 1 ? horarios[0] : horarios.join('<br>');
+}
+
+function removeClasses() {
+    ['mesmadisciplina', 'disciplinaconflito', 'mesmocodigo'].forEach(className => {
+        document.querySelectorAll(`.${className}`).forEach(element => {
+            element.classList.remove(className);
+        });
+    });
+}
+
+function controlaMesmoCodigo() {
+    window.codigosdisciplinas.forEach(codigo => {
+        document.querySelectorAll(`.${codigo}`).forEach(element => {
+            element.classList.add('mesmocodigo');
+        });
+    });
+}
+
+function atualizaTPI() {
+    let totalCreditos = window.disciplinas.reduce((total, disciplina) => {
+        const componentId = document.querySelector(`input[value="${disciplina}"]`).id
+        const disciplinaObj = window.todasDisciplinas[componentId];
+        return total + disciplinaObj.tpi[0] + disciplinaObj.tpi[1];
+    }, 0);
+    document.querySelector("#atualiza").innerHTML = totalCreditos;
+}
+
+function buscaTurno(turno) {
+    const turnoNome = turno === "diurno" ? "Diurno" : "Noturno";
+    document.querySelectorAll("#tabeladisciplinas > tr").forEach(row => {
+        const disciplina = row.querySelector("td:nth-child(3)");
+        if (disciplina) {
+            row.style.display = disciplina.innerHTML.includes(turnoNome) ? "" : "none";
+        }
+    });
+}
+
+
+// non-migrated methods
+
+function validaLinha(a) {
+    var s = "tr[value=" + a.value + "]",
+        o = $(s)[0].classList.length;
+    if (((i = 0), (w = 0), 1 == a.checked))
+        for (; i < disciplinas.length; ) {
+            for (; w < o; ) {
+                if ("mesmadisciplina" != $(s)[0].classList[w] && "disciplinaconflito" != $(s)[0].classList[w]) {
+                    var r = "." + $(s)[0].classList[w];
+                    $(r).each(function () {
+                        this.classList.add("disciplinaconflito");
+                    });
+                }
+                w++;
+            }
+            i++;
+        }
+    if (0 == a.checked)
+        for (; i < disciplinas.length; ) {
+            for (; w < o; ) {
+                if ("mesmadisciplina" != $(s)[0].classList[w] && "disciplinaconflito" != $(s)[0].classList[w]) {
+                    r = "." + $(s)[0].classList[w];
+                    $(r).each(function () {
+                        this.classList.remove("disciplinaconflito");
+                    });
+                }
+                w++;
+            }
+            i++;
+        }
+}
+  
+
+function organizaDisciplinas() {
+($("select")[0].disabled = !1),
+    ($("table#tabeladisciplinas")[0].innerHTML = ""),
+    ($("table#tabeladisciplinas")[0].innerHTML =
+        '<th style="width:20px">Selecionar</th><th style="width:100px">C\xf3digo</th><th>Discipina (Campus)</th><th style="width: 30px">Vagas</th><th style="width:30px;">Requisi\xe7\xf5es</th><th style="width:100px;">T-P-I</th><th style="width: 350px;">Hor\xe1rio</th>'),
+    ($("table#tabeladisciplinas")[1].innerHTML = ""),
+    ($("table#tabeladisciplinas")[1].innerHTML =
+        '<th style="width:20px">Selecionar</th><th style="width:100px">C\xf3digo</th><th>Discipina (Campus)</th><th style="width: 30px">Vagas</th><th style="width:30px;">Requisi\xe7\xf5es</th><th style="width:100px;">T-P-I</th><th style="width: 350px;">Hor\xe1rio</th>'),
+    ($("table#tabeladisciplinas")[2].innerHTML = ""),
+    ($("table#tabeladisciplinas")[2].innerHTML =
+        '<th style="width:20px">Selecionar</th><th style="width:100px">C\xf3digo</th><th>Discipina (Campus)</th><th style="width: 30px">Vagas</th><th style="width:30px;">Requisi\xe7\xf5es</th><th style="width:100px;">T-P-I</th><th style="width: 350px;">Hor\xe1rio</th>');
+for (var i = 0; i < todasDisciplinas.length; ) {
+    var a = document.createElement("tr");
+    a.setAttribute("value", todasDisciplinas[i].id);
+    for (var s = 0; s < todasDisciplinas[i].horarios.length; ) {
+        for (var o = 0, r = ""; o < todasDisciplinas[i].codigo.length; ) "-" != todasDisciplinas[i].codigo[o] && (r += todasDisciplinas[i].codigo[o]), o++;
+        if (" - semanal" == todasDisciplinas[i].horarios[s].periodicidade_extenso) {
+            for (var n = 0; n < todasDisciplinas[i].horarios[s].horas.length - 1; )
+                (a.className =
+                    a.className +
+                    "quinzenaum" +
+                    todasDisciplinas[i].horarios[s].semana +
+                    "_" +
+                    todasDisciplinas[i].horarios[s].horas[n][0] +
+                    todasDisciplinas[i].horarios[s].horas[n][1] +
+                    todasDisciplinas[i].horarios[s].horas[n][3] +
+                    todasDisciplinas[i].horarios[s].horas[n][4] +
+                    " quinzenadois" +
+                    todasDisciplinas[i].horarios[s].semana +
+                    "_" +
+                    todasDisciplinas[i].horarios[s].horas[n][0] +
+                    todasDisciplinas[i].horarios[s].horas[n][1] +
+                    todasDisciplinas[i].horarios[s].horas[n][3] +
+                    todasDisciplinas[i].horarios[s].horas[n][4] +
+                    " "),
+                    n++;
+            a.className = a.className + r + " ";
+        } else if (" - quinzenal (I)" == todasDisciplinas[i].horarios[s].periodicidade_extenso) {
+            for (n = 0; n < todasDisciplinas[i].horarios[s].horas.length - 1; )
+                (a.className =
+                    a.className +
+                    "quinzenaum" +
+                    todasDisciplinas[i].horarios[s].semana +
+                    "_" +
+                    todasDisciplinas[i].horarios[s].horas[n][0] +
+                    todasDisciplinas[i].horarios[s].horas[n][1] +
+                    todasDisciplinas[i].horarios[s].horas[n][3] +
+                    todasDisciplinas[i].horarios[s].horas[n][4] +
+                    " "),
+                    n++;
+            a.className = a.className + r;
+        } else if (" - quinzenal (II)" == todasDisciplinas[i].horarios[s].periodicidade_extenso) {
+            for (n = 0; n < todasDisciplinas[i].horarios[s].horas.length - 1; )
+                (a.className =
+                    a.className +
+                    "quinzenadois" +
+                    todasDisciplinas[i].horarios[s].semana +
+                    "_" +
+                    todasDisciplinas[i].horarios[s].horas[n][0] +
+                    todasDisciplinas[i].horarios[s].horas[n][1] +
+                    todasDisciplinas[i].horarios[s].horas[n][3] +
+                    todasDisciplinas[i].horarios[s].horas[n][4] +
+                    " "),
+                    n++;
+            a.className = a.className + r;
+        }
+        s++;
+    }
+    for (var e = [], t = document.createElement("li"), c = 0; c < 7; ) (e[c] = document.createElement("td")), c++;
+    e[0].appendChild(t), e[3].setAttribute("value", todasDisciplinas[i].id), e[4].setAttribute("value", todasDisciplinas[i].id);
+    c = 0;
+    (e[0].firstChild.innerHTML = '<input type="checkbox" value="' + todasDisciplinas[i].id + '" id="' + i + "\" onchange='verificacao(this)' name='disciplina_ids[]'>"), (e[1].textContent = todasDisciplinas[i].codigo);
+    var d = document.createElement("span");
+    if (
+        ((d.textContent = todasDisciplinas[i].nome),
+        "Campus Santo Andr\xe9" == todasDisciplinas[i].nome_campus ? (d.className = "sa") : (d.className = "sbc"),
+        e[2].appendChild(d),
+        (e[3].textContent = todasDisciplinas[i].vagas),
+        (periodoMatricula || periodoSegundoQuadrimestre) &&
+            null != todasDisciplinas[i].vagas_ingressantes &&
+            (alunoIngressante ? (e[3].textContent = todasDisciplinas[i].vagas_ingressantes) : (e[3].textContent = todasDisciplinas[i].vagas - todasDisciplinas[i].vagas_ingressantes)),
+        (periodoMatricula || periodoSegundoQuadrimestre) && null != todasDisciplinas[i].vagas_ingressantes
+            ? alunoIngressante
+                ? contagemMatriculasIngressantes[todasDisciplinas[i].id] == undefined
+                    ? (e[4].textContent = 0)
+                    : (e[4].textContent = contagemMatriculasIngressantes[todasDisciplinas[i].id])
+                : (e[4].textContent = contagemMatriculas[todasDisciplinas[i].id])
+            : contagemMatriculas[todasDisciplinas[i].id] == undefined
+            ? (e[4].textContent = 0)
+            : (e[4].textContent = contagemMatriculas[todasDisciplinas[i].id]),
+        (e[5].textContent = "(" + todasDisciplinas[i].tpi[0] + "-" + todasDisciplinas[i].tpi[1] + "-" + todasDisciplinas[i].tpi[2] + ")"),
+        1 == todasDisciplinas[i].horarios.length)
+    )
+        var l = verificaDia(todasDisciplinas[i], 0) + verificaHora(todasDisciplinas[i], 0) + verificaPeriodicidade(todasDisciplinas[i], 0);
+    else if (2 == todasDisciplinas[i].horarios.length)
+        l =
+            verificaDia(todasDisciplinas[i], 0) +
+            verificaHora(todasDisciplinas[i], 0) +
+            verificaPeriodicidade(todasDisciplinas[i], 0) +
+            "<br>" +
+            (verificaDia(todasDisciplinas[i], 1) + verificaHora(todasDisciplinas[i], 1) + verificaPeriodicidade(todasDisciplinas[i], 1));
+    else if (3 == todasDisciplinas[i].horarios.length)
+        l =
+            verificaDia(todasDisciplinas[i], 0) +
+            verificaHora(todasDisciplinas[i], 0) +
+            verificaPeriodicidade(todasDisciplinas[i], 0) +
+            "<br>" +
+            (verificaDia(todasDisciplinas[i], 1) + verificaHora(todasDisciplinas[i], 1) + verificaPeriodicidade(todasDisciplinas[i], 1)) +
+            "<br>" +
+            (verificaDia(todasDisciplinas[i], 2) + verificaHora(todasDisciplinas[i], 2) + verificaPeriodicidade(todasDisciplinas[i], 2));
+    else if (4 == todasDisciplinas[i].horarios.length)
+        l =
+            verificaDia(todasDisciplinas[i], 0) +
+            verificaHora(todasDisciplinas[i], 0) +
+            verificaPeriodicidade(todasDisciplinas[i], 0) +
+            "<br>" +
+            (verificaDia(todasDisciplinas[i], 1) + verificaHora(todasDisciplinas[i], 1) + verificaPeriodicidade(todasDisciplinas[i], 1)) +
+            "<br>" +
+            (verificaDia(todasDisciplinas[i], 2) + verificaHora(todasDisciplinas[i], 2) + verificaPeriodicidade(todasDisciplinas[i], 2)) +
+            "<br>" +
+            (verificaDia(todasDisciplinas[i], 3) + verificaHora(todasDisciplinas[i], 3) + verificaPeriodicidade(todasDisciplinas[i], 3));
+    else if (5 == todasDisciplinas[i].horarios.length)
+        l =
+            verificaDia(todasDisciplinas[i], 0) +
+            verificaHora(todasDisciplinas[i], 0) +
+            verificaPeriodicidade(todasDisciplinas[i], 0) +
+            "<br>" +
+            (verificaDia(todasDisciplinas[i], 1) + verificaHora(todasDisciplinas[i], 1) + verificaPeriodicidade(todasDisciplinas[i], 1)) +
+            "<br>" +
+            (verificaDia(todasDisciplinas[i], 2) + verificaHora(todasDisciplinas[i], 2) + verificaPeriodicidade(todasDisciplinas[i], 2)) +
+            "<br>" +
+            (verificaDia(todasDisciplinas[i], 3) + verificaHora(todasDisciplinas[i], 3) + verificaPeriodicidade(todasDisciplinas[i], 3)) +
+            "<br>" +
+            (verificaDia(todasDisciplinas[i], 4) + verificaHora(todasDisciplinas[i], 4) + verificaPeriodicidade(todasDisciplinas[i], 4));
+    for (e[6].innerHTML = l; c < 7; ) a.appendChild(e[c]), c++;
+    var p = $("#curso")[0].value,
+        h = todasDisciplinas[i].obrigatoriedades.length,
+        u = 0;
+    if (0 == h) $("div#disciplinaslivres>table")[0].appendChild(a);
+    else if (1 <= h)
+        for (; u < h; ) {
+            if (todasDisciplinas[i].obrigatoriedades[u].curso_id == p && "obrigatoria" == todasDisciplinas[i].obrigatoriedades[u].obrigatoriedade) {
+                $("div#disciplinasobrigatorias>table")[0].appendChild(a);
+                break;
+            }
+            if (todasDisciplinas[i].obrigatoriedades[u].curso_id == p && "limitada" == todasDisciplinas[i].obrigatoriedades[u].obrigatoriedade) {
+                $("div#disciplinaslimitadas>table")[0].appendChild(a);
+                break;
+            }
+            u == h - 1 && $("div#disciplinaslivres>table")[0].appendChild(a), u++;
+        }
+    i++;
+}
+repreencherDisciplinas();
+for (u = 0; u < disciplinas.length; ) {
+    var D = "input[value=" + disciplinas[u] + "]";
+    validaLinha($(D)[0]), u++;
+}
+mesmaDisciplina(), controlaMesmoCodigo();
+}
+
 function pintarCalendarioSemanal(i, a) {
     var s = $(i)[0].id,
         o = todasDisciplinas[s].horarios[a].semana,
@@ -185,330 +511,4 @@ function limpacorCalendarioQuinzenal(i, a, s) {
         }
         x++;
     }
-}
-
-function alertaCalendario(element) {
-    document.querySelector(".conflito").style.display = "block";
-    document.querySelector(`input[value="${element.value}"]`).checked = false;
-    document.querySelector("div#fundopreto").style.display = "block";
-}
-
-function fecharalerta() {
-    document.querySelector(".conflito").style.display = "none";
-    document.querySelector("div#fundopreto").style.display = "none";
-}
-
-function buscaNome() {
-    const busca = document.querySelector("input#busca").value.toUpperCase();
-    const rows = document.querySelectorAll("#tabeladisciplinas > tr");
-    
-    rows.forEach(row => {
-        const disciplina = row.querySelector("td:nth-child(3)");
-        if (disciplina) {
-            row.style.display = disciplina.innerHTML.toUpperCase().includes(busca) ? "" : "none";
-        }
-    });
-}
-
-function buscaCampus(campus) {
-    const rows = document.querySelectorAll("#tabeladisciplinas > tr");
-    const campusNome = campus === "sa" ? "Santo André" : "São Bernardo";
-    
-    rows.forEach(row => {
-        const disciplina = row.querySelector("td:nth-child(3)");
-        if (disciplina) {
-            row.style.display = disciplina.innerHTML.includes(campusNome) ? "" : "none";
-        }
-    });
-}
-
-function buscaVagas() {
-    const rows = document.querySelectorAll("#tabeladisciplinas > tr");
-    
-    rows.forEach(row => {
-        const vagas = row.querySelector("td[value]");
-        const requisicoes = vagas?.nextElementSibling;
-        if (vagas && requisicoes && parseInt(requisicoes.innerHTML) >= parseInt(vagas.innerHTML)) {
-            row.style.display = "none";
-        }
-    });
-}
-
-function organizaDisciplinas() {
-  ($("select")[0].disabled = !1),
-      ($("table#tabeladisciplinas")[0].innerHTML = ""),
-      ($("table#tabeladisciplinas")[0].innerHTML =
-          '<th style="width:20px">Selecionar</th><th style="width:100px">C\xf3digo</th><th>Discipina (Campus)</th><th style="width: 30px">Vagas</th><th style="width:30px;">Requisi\xe7\xf5es</th><th style="width:100px;">T-P-I</th><th style="width: 350px;">Hor\xe1rio</th>'),
-      ($("table#tabeladisciplinas")[1].innerHTML = ""),
-      ($("table#tabeladisciplinas")[1].innerHTML =
-          '<th style="width:20px">Selecionar</th><th style="width:100px">C\xf3digo</th><th>Discipina (Campus)</th><th style="width: 30px">Vagas</th><th style="width:30px;">Requisi\xe7\xf5es</th><th style="width:100px;">T-P-I</th><th style="width: 350px;">Hor\xe1rio</th>'),
-      ($("table#tabeladisciplinas")[2].innerHTML = ""),
-      ($("table#tabeladisciplinas")[2].innerHTML =
-          '<th style="width:20px">Selecionar</th><th style="width:100px">C\xf3digo</th><th>Discipina (Campus)</th><th style="width: 30px">Vagas</th><th style="width:30px;">Requisi\xe7\xf5es</th><th style="width:100px;">T-P-I</th><th style="width: 350px;">Hor\xe1rio</th>');
-  for (var i = 0; i < todasDisciplinas.length; ) {
-      var a = document.createElement("tr");
-      a.setAttribute("value", todasDisciplinas[i].id);
-      for (var s = 0; s < todasDisciplinas[i].horarios.length; ) {
-          for (var o = 0, r = ""; o < todasDisciplinas[i].codigo.length; ) "-" != todasDisciplinas[i].codigo[o] && (r += todasDisciplinas[i].codigo[o]), o++;
-          if (" - semanal" == todasDisciplinas[i].horarios[s].periodicidade_extenso) {
-              for (var n = 0; n < todasDisciplinas[i].horarios[s].horas.length - 1; )
-                  (a.className =
-                      a.className +
-                      "quinzenaum" +
-                      todasDisciplinas[i].horarios[s].semana +
-                      "_" +
-                      todasDisciplinas[i].horarios[s].horas[n][0] +
-                      todasDisciplinas[i].horarios[s].horas[n][1] +
-                      todasDisciplinas[i].horarios[s].horas[n][3] +
-                      todasDisciplinas[i].horarios[s].horas[n][4] +
-                      " quinzenadois" +
-                      todasDisciplinas[i].horarios[s].semana +
-                      "_" +
-                      todasDisciplinas[i].horarios[s].horas[n][0] +
-                      todasDisciplinas[i].horarios[s].horas[n][1] +
-                      todasDisciplinas[i].horarios[s].horas[n][3] +
-                      todasDisciplinas[i].horarios[s].horas[n][4] +
-                      " "),
-                      n++;
-              a.className = a.className + r + " ";
-          } else if (" - quinzenal (I)" == todasDisciplinas[i].horarios[s].periodicidade_extenso) {
-              for (n = 0; n < todasDisciplinas[i].horarios[s].horas.length - 1; )
-                  (a.className =
-                      a.className +
-                      "quinzenaum" +
-                      todasDisciplinas[i].horarios[s].semana +
-                      "_" +
-                      todasDisciplinas[i].horarios[s].horas[n][0] +
-                      todasDisciplinas[i].horarios[s].horas[n][1] +
-                      todasDisciplinas[i].horarios[s].horas[n][3] +
-                      todasDisciplinas[i].horarios[s].horas[n][4] +
-                      " "),
-                      n++;
-              a.className = a.className + r;
-          } else if (" - quinzenal (II)" == todasDisciplinas[i].horarios[s].periodicidade_extenso) {
-              for (n = 0; n < todasDisciplinas[i].horarios[s].horas.length - 1; )
-                  (a.className =
-                      a.className +
-                      "quinzenadois" +
-                      todasDisciplinas[i].horarios[s].semana +
-                      "_" +
-                      todasDisciplinas[i].horarios[s].horas[n][0] +
-                      todasDisciplinas[i].horarios[s].horas[n][1] +
-                      todasDisciplinas[i].horarios[s].horas[n][3] +
-                      todasDisciplinas[i].horarios[s].horas[n][4] +
-                      " "),
-                      n++;
-              a.className = a.className + r;
-          }
-          s++;
-      }
-      for (var e = [], t = document.createElement("li"), c = 0; c < 7; ) (e[c] = document.createElement("td")), c++;
-      e[0].appendChild(t), e[3].setAttribute("value", todasDisciplinas[i].id), e[4].setAttribute("value", todasDisciplinas[i].id);
-      c = 0;
-      (e[0].firstChild.innerHTML = '<input type="checkbox" value="' + todasDisciplinas[i].id + '" id="' + i + "\" onchange='verificacao(this)' name='disciplina_ids[]'>"), (e[1].textContent = todasDisciplinas[i].codigo);
-      var d = document.createElement("span");
-      if (
-          ((d.textContent = todasDisciplinas[i].nome),
-          "Campus Santo Andr\xe9" == todasDisciplinas[i].nome_campus ? (d.className = "sa") : (d.className = "sbc"),
-          e[2].appendChild(d),
-          (e[3].textContent = todasDisciplinas[i].vagas),
-          (periodoMatricula || periodoSegundoQuadrimestre) &&
-              null != todasDisciplinas[i].vagas_ingressantes &&
-              (alunoIngressante ? (e[3].textContent = todasDisciplinas[i].vagas_ingressantes) : (e[3].textContent = todasDisciplinas[i].vagas - todasDisciplinas[i].vagas_ingressantes)),
-          (periodoMatricula || periodoSegundoQuadrimestre) && null != todasDisciplinas[i].vagas_ingressantes
-              ? alunoIngressante
-                  ? contagemMatriculasIngressantes[todasDisciplinas[i].id] == undefined
-                      ? (e[4].textContent = 0)
-                      : (e[4].textContent = contagemMatriculasIngressantes[todasDisciplinas[i].id])
-                  : (e[4].textContent = contagemMatriculas[todasDisciplinas[i].id])
-              : contagemMatriculas[todasDisciplinas[i].id] == undefined
-              ? (e[4].textContent = 0)
-              : (e[4].textContent = contagemMatriculas[todasDisciplinas[i].id]),
-          (e[5].textContent = "(" + todasDisciplinas[i].tpi[0] + "-" + todasDisciplinas[i].tpi[1] + "-" + todasDisciplinas[i].tpi[2] + ")"),
-          1 == todasDisciplinas[i].horarios.length)
-      )
-          var l = verificaDia(todasDisciplinas[i], 0) + verificaHora(todasDisciplinas[i], 0) + verificaPeriodicidade(todasDisciplinas[i], 0);
-      else if (2 == todasDisciplinas[i].horarios.length)
-          l =
-              verificaDia(todasDisciplinas[i], 0) +
-              verificaHora(todasDisciplinas[i], 0) +
-              verificaPeriodicidade(todasDisciplinas[i], 0) +
-              "<br>" +
-              (verificaDia(todasDisciplinas[i], 1) + verificaHora(todasDisciplinas[i], 1) + verificaPeriodicidade(todasDisciplinas[i], 1));
-      else if (3 == todasDisciplinas[i].horarios.length)
-          l =
-              verificaDia(todasDisciplinas[i], 0) +
-              verificaHora(todasDisciplinas[i], 0) +
-              verificaPeriodicidade(todasDisciplinas[i], 0) +
-              "<br>" +
-              (verificaDia(todasDisciplinas[i], 1) + verificaHora(todasDisciplinas[i], 1) + verificaPeriodicidade(todasDisciplinas[i], 1)) +
-              "<br>" +
-              (verificaDia(todasDisciplinas[i], 2) + verificaHora(todasDisciplinas[i], 2) + verificaPeriodicidade(todasDisciplinas[i], 2));
-      else if (4 == todasDisciplinas[i].horarios.length)
-          l =
-              verificaDia(todasDisciplinas[i], 0) +
-              verificaHora(todasDisciplinas[i], 0) +
-              verificaPeriodicidade(todasDisciplinas[i], 0) +
-              "<br>" +
-              (verificaDia(todasDisciplinas[i], 1) + verificaHora(todasDisciplinas[i], 1) + verificaPeriodicidade(todasDisciplinas[i], 1)) +
-              "<br>" +
-              (verificaDia(todasDisciplinas[i], 2) + verificaHora(todasDisciplinas[i], 2) + verificaPeriodicidade(todasDisciplinas[i], 2)) +
-              "<br>" +
-              (verificaDia(todasDisciplinas[i], 3) + verificaHora(todasDisciplinas[i], 3) + verificaPeriodicidade(todasDisciplinas[i], 3));
-      else if (5 == todasDisciplinas[i].horarios.length)
-          l =
-              verificaDia(todasDisciplinas[i], 0) +
-              verificaHora(todasDisciplinas[i], 0) +
-              verificaPeriodicidade(todasDisciplinas[i], 0) +
-              "<br>" +
-              (verificaDia(todasDisciplinas[i], 1) + verificaHora(todasDisciplinas[i], 1) + verificaPeriodicidade(todasDisciplinas[i], 1)) +
-              "<br>" +
-              (verificaDia(todasDisciplinas[i], 2) + verificaHora(todasDisciplinas[i], 2) + verificaPeriodicidade(todasDisciplinas[i], 2)) +
-              "<br>" +
-              (verificaDia(todasDisciplinas[i], 3) + verificaHora(todasDisciplinas[i], 3) + verificaPeriodicidade(todasDisciplinas[i], 3)) +
-              "<br>" +
-              (verificaDia(todasDisciplinas[i], 4) + verificaHora(todasDisciplinas[i], 4) + verificaPeriodicidade(todasDisciplinas[i], 4));
-      for (e[6].innerHTML = l; c < 7; ) a.appendChild(e[c]), c++;
-      var p = $("#curso")[0].value,
-          h = todasDisciplinas[i].obrigatoriedades.length,
-          u = 0;
-      if (0 == h) $("div#disciplinaslivres>table")[0].appendChild(a);
-      else if (1 <= h)
-          for (; u < h; ) {
-              if (todasDisciplinas[i].obrigatoriedades[u].curso_id == p && "obrigatoria" == todasDisciplinas[i].obrigatoriedades[u].obrigatoriedade) {
-                  $("div#disciplinasobrigatorias>table")[0].appendChild(a);
-                  break;
-              }
-              if (todasDisciplinas[i].obrigatoriedades[u].curso_id == p && "limitada" == todasDisciplinas[i].obrigatoriedades[u].obrigatoriedade) {
-                  $("div#disciplinaslimitadas>table")[0].appendChild(a);
-                  break;
-              }
-              u == h - 1 && $("div#disciplinaslivres>table")[0].appendChild(a), u++;
-          }
-      i++;
-  }
-  repreencherDisciplinas();
-  for (u = 0; u < disciplinas.length; ) {
-      var D = "input[value=" + disciplinas[u] + "]";
-      validaLinha($(D)[0]), u++;
-  }
-  mesmaDisciplina(), controlaMesmoCodigo();
-}
-
-function insereDisciplina(i) {
-  disciplinas.push(i), (x = 0), mesmaDisciplina();
-}
-
-function insereCodigo(i) {
-  codigosdisciplinas.push(i);
-}
-
-function removeCodigo(i) {
-  var a = codigosdisciplinas.indexOf(i);
-  -1 < a && codigosdisciplinas.splice(a, 1), $("tr." + i)[0].classList.remove("mesmocodigo");
-}
-
-function mesmaDisciplina() {
-  for (x = 0; x < disciplinas.length; ) {
-      var i = "tr[value=" + $(disciplinas)[x] + "]";
-      $(i)[0].classList.add("mesmadisciplina"), x++;
-  }
-}
-
-function removeDisciplina(i) {
-  var a = disciplinas.indexOf(i);
-  -1 < a && disciplinas.splice(a, 1), $("tr[value=" + i + "]")[0].classList.remove("mesmadisciplina");
-}
-
-function repreencherDisciplinas() {
-  for (var i = 0; i < disciplinas.length; ) {
-      var a = disciplinas[i];
-      ($("input[value=" + a + "]")[0].checked = !0), i++;
-  }
-}
-
-function validaLinha(a) {
-  var s = "tr[value=" + a.value + "]",
-      o = $(s)[0].classList.length;
-  if (((i = 0), (w = 0), 1 == a.checked))
-      for (; i < disciplinas.length; ) {
-          for (; w < o; ) {
-              if ("mesmadisciplina" != $(s)[0].classList[w] && "disciplinaconflito" != $(s)[0].classList[w]) {
-                  var r = "." + $(s)[0].classList[w];
-                  $(r).each(function () {
-                      this.classList.add("disciplinaconflito");
-                  });
-              }
-              w++;
-          }
-          i++;
-      }
-  if (0 == a.checked)
-      for (; i < disciplinas.length; ) {
-          for (; w < o; ) {
-              if ("mesmadisciplina" != $(s)[0].classList[w] && "disciplinaconflito" != $(s)[0].classList[w]) {
-                  r = "." + $(s)[0].classList[w];
-                  $(r).each(function () {
-                      this.classList.remove("disciplinaconflito");
-                  });
-              }
-              w++;
-          }
-          i++;
-      }
-}
-
-function organizaHorarios(i) {
-  for (var a = i.horarios.length, s = 0, o = [], r = [], n = []; s < a; ) o.push(verificaDia(i, s)), r.push(verificaHora(i, s)), n.push(verificaPeriodicidade(i, 0)), s++;
-  p = 0;
-  var e = "";
-  if (1 == o.length) return o[0] + r[0] + n[0];
-  for (; p < o.length; ) {
-      e = e + o[p] + r[p] + n[p] + "<br>";
-      p++;
-  }
-  return e;
-}
-function removeClasses() {
-  $(".mesmadisciplina").each(function i() {
-      this.classList.remove("mesmadisciplina");
-  }),
-      $(".disciplinaconflito").each(function a() {
-          this.classList.remove("disciplinaconflito");
-      }),
-      $(".mesmocodigo").each(function s() {
-          this.classList.remove("mesmocodigo");
-      });
-}
-
-function controlaMesmoCodigo() {
-  for (var i = 0; i < codigosdisciplinas.length; ) {
-      var a = "." + codigosdisciplinas[i];
-      $(a).each(function s() {
-          this.classList.add("mesmocodigo");
-      }),
-          i++;
-  }
-}
-
-function atualizaTPI() {
-  for (var i = 0, a = 0; i < disciplinas.length; ) {
-      var s = disciplinas[i],
-          o = $("input[value=" + s + "]")[0].id;
-      (a = a + todasDisciplinas[o].tpi[0] + todasDisciplinas[o].tpi[1]), i++;
-  }
-  $("#atualiza")[0].innerHTML = a;
-}
-
-function buscaTurno(i) {
-  for (x = 0, qtddisciplinas = $("#tabeladisciplinas > tr > td:nth-child(2)").length; x < qtddisciplinas; ) {
-      if ("diurno" == i) {
-          var a = "Diurno";
-          -1 != $("#tabeladisciplinas > tr > td:nth-child(3)")[x].innerHTML.indexOf(a) || ($("#tabeladisciplinas > tr")[x].style.display = "none");
-      } else if ("noturno" == i) {
-          a = "Noturno";
-          -1 != $("#tabeladisciplinas > tr > td:nth-child(3)")[x].innerHTML.indexOf(a) || ($("#tabeladisciplinas > tr")[x].style.display = "none");
-      }
-      x++;
-  }
 }

@@ -94,9 +94,9 @@ function verificacao(inputElement) {
     // Post-processing
     removeClasses();
     repreencherDisciplinas();
-
+    
     // Revalidate all current disciplines
-    disciplinas.forEach(disciplina => {
+    window.disciplinas.forEach(disciplina => {
         const input = $(`input[value=${disciplina}]`)[0];
         validaLinha(input);
     });
