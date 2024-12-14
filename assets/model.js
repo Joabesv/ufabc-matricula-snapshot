@@ -44,7 +44,6 @@ function periodicidadeDisciplina(elemento, indice) {
     return window.todasDisciplinas[id].horarios[indice].periodicidade_extenso;
 }
 
-
 function disciplinaConflitanteSemanal(elemento, indice) {
     const id = elemento.id;
     const disciplina = todasDisciplinas[id];
@@ -94,6 +93,35 @@ function verificaDisciplinaSelecionada(element, indice) {
            document.querySelector(seletorDois)?.classList.contains(id);
 }
 
+function pintarCalendarioSemanal(i, a) {
+    var s = $(i)[0].id,
+        o = todasDisciplinas[s].horarios[a].semana,
+        r = todasDisciplinas[s].horarios[a].horas.length;
+    x = 0;
+    for (var n = []; x < r - 1; ) (n[x] = todasDisciplinas[s].horarios[a].horas[x][0] + todasDisciplinas[s].horarios[a].horas[x][1] + todasDisciplinas[s].horarios[a].horas[x][3] + todasDisciplinas[s].horarios[a].horas[x][4]), (x += 1);
+    for (x = 0; x < n.length; ) {
+        var e = ".quinzenaum_" + o + "_" + n[x],
+            t = ".quinzenadois_" + o + "_" + n[x];
+        if (
+            ("Campus Santo Andr\xe9" == todasDisciplinas[s].nome_campus ? ($(e)[0].style.backgroundColor = "rgb(0, 100, 0)") : ($(e)[0].style.backgroundColor = "rgb(29, 40, 163)"),
+            $(e)[0].classList.add(s),
+            7 < todasDisciplinas[s].codigo.length)
+        )
+            var c =
+                todasDisciplinas[s].codigo[0] + todasDisciplinas[s].codigo[1] + todasDisciplinas[s].codigo[2] + todasDisciplinas[s].codigo[3] + todasDisciplinas[s].codigo[4] + todasDisciplinas[s].codigo[5] + todasDisciplinas[s].codigo[6];
+        else c = todasDisciplinas[s].codigo;
+        if (
+            (($(e)[0].innerHTML = c),
+            "Campus Santo Andr\xe9" == todasDisciplinas[s].nome_campus ? ($(t)[0].style.backgroundColor = "rgb(0, 100, 0)") : ($(t)[0].style.backgroundColor = "rgb(29, 40, 163)"),
+            $(t)[0].classList.add(s),
+            7 < todasDisciplinas[s].codigo.length)
+        )
+            c = todasDisciplinas[s].codigo[0] + todasDisciplinas[s].codigo[1] + todasDisciplinas[s].codigo[2] + todasDisciplinas[s].codigo[3] + todasDisciplinas[s].codigo[4] + todasDisciplinas[s].codigo[5] + todasDisciplinas[s].codigo[6];
+        else c = todasDisciplinas[s].codigo;
+        ($(t)[0].innerHTML = c), x++;
+    }
+}
+  
 function pintarCalendarioQuinzenal(i, a, s) {
     var o = $(i)[0].id,
         r = todasDisciplinas[o].horarios[a].semana,
@@ -127,41 +155,6 @@ function pintarCalendarioQuinzenal(i, a, s) {
         x++;
     }
 }
-  
-function pintarCalendarioSemanal(i, a) {
-  var s = $(i)[0].id,
-      o = todasDisciplinas[s].horarios[a].semana,
-      r = todasDisciplinas[s].horarios[a].horas.length;
-  x = 0;
-  for (var n = []; x < r - 1; ) (n[x] = todasDisciplinas[s].horarios[a].horas[x][0] + todasDisciplinas[s].horarios[a].horas[x][1] + todasDisciplinas[s].horarios[a].horas[x][3] + todasDisciplinas[s].horarios[a].horas[x][4]), (x += 1);
-  for (x = 0; x < n.length; ) {
-      var e = ".quinzenaum_" + o + "_" + n[x],
-          t = ".quinzenadois_" + o + "_" + n[x];
-      if (
-          ("Campus Santo Andr\xe9" == todasDisciplinas[s].nome_campus ? ($(e)[0].style.backgroundColor = "rgb(0, 100, 0)") : ($(e)[0].style.backgroundColor = "rgb(29, 40, 163)"),
-          $(e)[0].classList.add(s),
-          7 < todasDisciplinas[s].codigo.length)
-      )
-          var c =
-              todasDisciplinas[s].codigo[0] + todasDisciplinas[s].codigo[1] + todasDisciplinas[s].codigo[2] + todasDisciplinas[s].codigo[3] + todasDisciplinas[s].codigo[4] + todasDisciplinas[s].codigo[5] + todasDisciplinas[s].codigo[6];
-      else c = todasDisciplinas[s].codigo;
-      if (
-          (($(e)[0].innerHTML = c),
-          "Campus Santo Andr\xe9" == todasDisciplinas[s].nome_campus ? ($(t)[0].style.backgroundColor = "rgb(0, 100, 0)") : ($(t)[0].style.backgroundColor = "rgb(29, 40, 163)"),
-          $(t)[0].classList.add(s),
-          7 < todasDisciplinas[s].codigo.length)
-      )
-          c = todasDisciplinas[s].codigo[0] + todasDisciplinas[s].codigo[1] + todasDisciplinas[s].codigo[2] + todasDisciplinas[s].codigo[3] + todasDisciplinas[s].codigo[4] + todasDisciplinas[s].codigo[5] + todasDisciplinas[s].codigo[6];
-      else c = todasDisciplinas[s].codigo;
-      ($(t)[0].innerHTML = c), x++;
-  }
-}
-
-function alertaCalendario(i) {
-  $(".conflito")[0].style.display = "block";
-  var a = i.value;
-  ($("input[value=" + a + "]")[0].checked = !1), ($("div#fundopreto")[0].style.display = "block");
-}
 
 function limpacorCalendarioSemanal(i, a) {
   var s = $(i)[0].id,
@@ -176,59 +169,71 @@ function limpacorCalendarioSemanal(i, a) {
   }
 }
 
-function fecharalerta() {
-  ($(".conflito")[0].style.display = "none"), ($("div#fundopreto")[0].style.display = "none");
+function limpacorCalendarioQuinzenal(i, a, s) {
+    var o = $(i)[0].id,
+        r = todasDisciplinas[o].horarios[a].semana,
+        n = todasDisciplinas[o].horarios[a].horas.length;
+    x = 0;
+    for (var e = []; x < n - 1; ) (e[x] = todasDisciplinas[o].horarios[a].horas[x][0] + todasDisciplinas[o].horarios[a].horas[x][1] + todasDisciplinas[o].horarios[a].horas[x][3] + todasDisciplinas[o].horarios[a].horas[x][4]), (x += 1);
+    for (x = 0; x < e.length; ) {
+        if (1 == s) {
+            var t = ".quinzenaum_" + r + "_" + e[x];
+            ($(t)[0].style.backgroundColor = ""), $(t)[0].classList.remove(o), ($(t)[0].innerHTML = "");
+        } else if (2 == s) {
+            t = ".quinzenadois_" + r + "_" + e[x];
+            ($(t)[0].style.backgroundColor = ""), $(t)[0].classList.remove(o), ($(t)[0].innerHTML = "");
+        }
+        x++;
+    }
 }
 
+function alertaCalendario(element) {
+    document.querySelector(".conflito").style.display = "block";
+    document.querySelector(`input[value="${element.value}"]`).checked = false;
+    document.querySelector("div#fundopreto").style.display = "block";
+}
 
-function limpacorCalendarioQuinzenal(i, a, s) {
-  var o = $(i)[0].id,
-      r = todasDisciplinas[o].horarios[a].semana,
-      n = todasDisciplinas[o].horarios[a].horas.length;
-  x = 0;
-  for (var e = []; x < n - 1; ) (e[x] = todasDisciplinas[o].horarios[a].horas[x][0] + todasDisciplinas[o].horarios[a].horas[x][1] + todasDisciplinas[o].horarios[a].horas[x][3] + todasDisciplinas[o].horarios[a].horas[x][4]), (x += 1);
-  for (x = 0; x < e.length; ) {
-      if (1 == s) {
-          var t = ".quinzenaum_" + r + "_" + e[x];
-          ($(t)[0].style.backgroundColor = ""), $(t)[0].classList.remove(o), ($(t)[0].innerHTML = "");
-      } else if (2 == s) {
-          t = ".quinzenadois_" + r + "_" + e[x];
-          ($(t)[0].style.backgroundColor = ""), $(t)[0].classList.remove(o), ($(t)[0].innerHTML = "");
-      }
-      x++;
-  }
+function fecharalerta() {
+    document.querySelector(".conflito").style.display = "none";
+    document.querySelector("div#fundopreto").style.display = "none";
 }
 
 function buscaNome() {
-  var i = $("input#busca")[0].value.toUpperCase();
-  for (x = 0, qtddisciplinas = $("#tabeladisciplinas > tr > td:nth-child(2)").length; x < qtddisciplinas; ) {
-      var a = $("#tabeladisciplinas > tr > td:nth-child(3)")[x].innerHTML.toUpperCase().indexOf(i);
-      ($("#tabeladisciplinas > tr")[x].style.display = -1 != a ? "" : "none"), x++;
-  }
+    const busca = document.querySelector("input#busca").value.toUpperCase();
+    const rows = document.querySelectorAll("#tabeladisciplinas > tr");
+    
+    rows.forEach(row => {
+        const disciplina = row.querySelector("td:nth-child(3)");
+        if (disciplina) {
+            row.style.display = disciplina.innerHTML.toUpperCase().includes(busca) ? "" : "none";
+        }
+    });
 }
-function buscaCampus(i) {
-  for (x = 0, qtddisciplinas = $("#tabeladisciplinas > tr > td:nth-child(2)").length; x < qtddisciplinas; ) {
-      if ("sa" == i) {
-          var a = "Santo Andr\xe9";
-          -1 != $("#tabeladisciplinas > tr > td:nth-child(3)")[x].innerHTML.indexOf(a) || ($("#tabeladisciplinas > tr")[x].style.display = "none");
-      } else if ("sbc" == i) {
-          a = "S\xe3o Bernardo";
-          -1 != $("#tabeladisciplinas > tr > td:nth-child(3)")[x].innerHTML.indexOf(a) || ($("#tabeladisciplinas > tr")[x].style.display = "none");
-      }
-      x++;
-  }
+
+function buscaCampus(campus) {
+    const rows = document.querySelectorAll("#tabeladisciplinas > tr");
+    const campusNome = campus === "sa" ? "Santo André" : "São Bernardo";
+    
+    rows.forEach(row => {
+        const disciplina = row.querySelector("td:nth-child(3)");
+        if (disciplina) {
+            row.style.display = disciplina.innerHTML.includes(campusNome) ? "" : "none";
+        }
+    });
 }
+
 function buscaVagas() {
-  for (x = 0, qtddisciplinas = $("#tabeladisciplinas > tr > td:nth-child(2)").length; x < qtddisciplinas; ) {
-      var i = "input[id=" + x + "]",
-          a = $(i)[0].value,
-          s = "tr[value=" + a + "]>td[value=" + a + "]",
-          o = $(s)[0].innerHTML;
-      if ($(s)[1].innerHTML < o);
-      else $("tr[value=" + a + "]")[0].style.display = "none";
-      x++;
-  }
+    const rows = document.querySelectorAll("#tabeladisciplinas > tr");
+    
+    rows.forEach(row => {
+        const vagas = row.querySelector("td[value]");
+        const requisicoes = vagas?.nextElementSibling;
+        if (vagas && requisicoes && parseInt(requisicoes.innerHTML) >= parseInt(vagas.innerHTML)) {
+            row.style.display = "none";
+        }
+    });
 }
+
 function organizaDisciplinas() {
   ($("select")[0].disabled = !1),
       ($("table#tabeladisciplinas")[0].innerHTML = ""),
@@ -389,32 +394,39 @@ function organizaDisciplinas() {
   }
   mesmaDisciplina(), controlaMesmoCodigo();
 }
+
 function insereDisciplina(i) {
   disciplinas.push(i), (x = 0), mesmaDisciplina();
 }
+
 function insereCodigo(i) {
   codigosdisciplinas.push(i);
 }
+
 function removeCodigo(i) {
   var a = codigosdisciplinas.indexOf(i);
   -1 < a && codigosdisciplinas.splice(a, 1), $("tr." + i)[0].classList.remove("mesmocodigo");
 }
+
 function mesmaDisciplina() {
   for (x = 0; x < disciplinas.length; ) {
       var i = "tr[value=" + $(disciplinas)[x] + "]";
       $(i)[0].classList.add("mesmadisciplina"), x++;
   }
 }
+
 function removeDisciplina(i) {
   var a = disciplinas.indexOf(i);
   -1 < a && disciplinas.splice(a, 1), $("tr[value=" + i + "]")[0].classList.remove("mesmadisciplina");
 }
+
 function repreencherDisciplinas() {
   for (var i = 0; i < disciplinas.length; ) {
       var a = disciplinas[i];
       ($("input[value=" + a + "]")[0].checked = !0), i++;
   }
 }
+
 function validaLinha(a) {
   var s = "tr[value=" + a.value + "]",
       o = $(s)[0].classList.length;
@@ -445,6 +457,7 @@ function validaLinha(a) {
           i++;
       }
 }
+
 function organizaHorarios(i) {
   for (var a = i.horarios.length, s = 0, o = [], r = [], n = []; s < a; ) o.push(verificaDia(i, s)), r.push(verificaHora(i, s)), n.push(verificaPeriodicidade(i, 0)), s++;
   p = 0;
@@ -467,6 +480,7 @@ function removeClasses() {
           this.classList.remove("mesmocodigo");
       });
 }
+
 function controlaMesmoCodigo() {
   for (var i = 0; i < codigosdisciplinas.length; ) {
       var a = "." + codigosdisciplinas[i];
