@@ -1,35 +1,99 @@
-var disciplinas = [],
-    codigosdisciplinas = [],
-    creditospegos = 0;
-$(document).ready(function () {
-    for (var e = 0, o = [], r = [], a = 0, n = 0; a < 31; ) (o[a] = document.createElement("tr")), (a += 1);
-    for (a = 0; a < 31; ) {
-        for (r[(n = 0)] = document.createElement("td"), r[0].id = "horario", r[0].innerHTML = retornaHorario(e); n < 6; ) {
-            var t = retornaHorario(e);
-            (r[n + 1] = document.createElement("td")), (r[n + 1].id = "dias"), (r[n + 1].className = "quinzenaum_" + (n + 1) + "_" + t[0] + t[1] + t[3] + t[4]), (n += 1);
+document.addEventListener('DOMContentLoaded', function() {
+    // Global variables
+    window.disciplinas = [];
+    window.codigosdisciplinas = [];
+    window.creditospegos = 0;
+
+    // Function to create calendar rows
+    function createCalendarRows(isFirstQuinzena = true) {
+        const tbody = isFirstQuinzena 
+            ? document.querySelector('tbody#segundo') 
+            : document.querySelector('tbody#terceiro');
+        
+        const rows = [];
+        
+        for (let hourIndex = 0; hourIndex < 31; hourIndex++) {
+            const row = document.createElement('tr');
+            const hourCell = document.createElement('td');
+            hourCell.id = 'horario';
+            hourCell.innerHTML = retornaHorario(hourIndex);
+            row.appendChild(hourCell);
+
+            // Create day cells
+            for (let dayIndex = 0; dayIndex < 6; dayIndex++) {
+                const timeCode = retornaHorario(hourIndex);
+                const dayCell = document.createElement('td');
+                dayCell.id = 'dias';
+                dayCell.className = `${isFirstQuinzena ? 'quinzenaum' : 'quinzenadois'}_${dayIndex + 1}_${timeCode[0] + timeCode[1] + timeCode[3] + timeCode[4]}`;
+                row.appendChild(dayCell);
+            }
+
+            rows.push(row);
         }
-        for (n = 0; n < 7; ) o[a].appendChild(r[n]), n++;
-        (a += 1), (e += 1);
+
+        // Append rows to tbody
+        rows.forEach(row => tbody.appendChild(row));
     }
-    for (i = 0; i < 31; ) $("tbody#segundo")[0].appendChild(o[i]), (i += 1);
-    for (e = 0, o = [], r = [], a = 0, n = 0; a < 31; ) (o[a] = document.createElement("tr")), (a += 1);
-    for (a = 0; a < 31; ) {
-        for (r[(n = 0)] = document.createElement("td"), r[0].id = "horario", r[0].innerHTML = retornaHorario(e); n < 6; ) {
-            t = retornaHorario(e);
-            (r[n + 1] = document.createElement("td")), (r[n + 1].id = "dias"), (r[n + 1].className = "quinzenadois_" + (n + 1) + "_" + t[0] + t[1] + t[3] + t[4]), (n += 1);
+
+    // Initialize calendar
+    function initializeCalendar() {
+        createCalendarRows(true);   // First quinzena
+        createCalendarRows(false);  // Second quinzena
+    }
+
+    // Preselect course and load disciplines
+    function setupCourseAndDisciplines() {
+        // Select course based on cursoAluno
+        const courseOption = document.querySelector(`option[value="${cursoAluno}"]`);
+        if (courseOption) {
+            courseOption.selected = true;
         }
-        for (n = 0; n < 7; ) o[a].appendChild(r[n]), n++;
-        (a += 1), (e += 1);
+
+        // Organize disciplines
+        if (typeof organizaDisciplinas === 'function') {
+            organizaDisciplinas();
+        }
+
+        // Preselect previously enrolled disciplines
+        if (window.todasMatriculas && window.todasMatriculas.length) {
+            window.todasMatriculas.forEach(disciplinaCode => {
+                const checkbox = document.querySelector(`input[value="${disciplinaCode}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                    verificacao(checkbox);
+                }
+            });
+        }
+
+        // Validate selected disciplines
+        disciplinas.forEach(disciplina => {
+            const checkbox = document.querySelector(`input[value="${disciplina}"]`);
+            if (checkbox) {
+                validaLinha(checkbox);
+            }
+        });
     }
-    for (i = 0; i < 31; ) $("tbody#terceiro")[0].appendChild(o[i]), (i += 1);
-    var d = "option[value=" + cursoAluno + "]";
-    for ($(d)[0].selected = !0, organizaDisciplinas(), po = 0; po < todasMatriculas.length; ) {
-        d = "input[value=" + todasMatriculas[po] + "]";
-        ($(d)[0].checked = !0), verificacao($(d)[0]), po++;
+
+    // Error handling and logging
+    function safeExecute(fn, errorMsg = 'An error occurred') {
+        try {
+            fn();
+        } catch (error) {
+            console.error(errorMsg, error);
+        }
     }
-    for (a = 0; a < disciplinas.length; ) {
-        var c = "input[value=" + disciplinas[a] + "]";
-        d = $(c)[0];
-        validaLinha(d), a++;
+
+    // Main initialization
+    function initialize() {
+        safeExecute(initializeCalendar, 'Failed to initialize calendar');
+        safeExecute(setupCourseAndDisciplines, 'Failed to setup course and disciplines');
     }
+
+    // Run initialization
+    initialize();
+});
+
+// Optional: Add error boundaries and logging
+window.addEventListener('error', function(event) {
+    console.error('Unhandled error in enrollment script:', event.error);
 });

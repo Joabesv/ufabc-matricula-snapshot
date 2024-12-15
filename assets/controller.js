@@ -1,48 +1,131 @@
-function verificacao(a) {
-  for (var i = quantosDias(a), e = $(a)[0].id, n = $(a)[0].value, c = 0, l = [], o = [], r = [], s = 0, d = ""; s < todasDisciplinas[e].codigo.length; ) "-" != todasDisciplinas[e].codigo[s] && (d += todasDisciplinas[e].codigo[s]), s++;
-  for (; c < i; )
-      " - semanal" == periodicidadeDisciplina(a, c)
-          ? 0 == disciplinaConflitanteSemanal(a, c)
-              ? (r[c] = "semanal")
-              : verificaDisciplinaSelecionada(a, c)
-              ? (o[c] = "repetidasemanal")
-              : (l[c] = "ativaralerta")
-          : " - quinzenal (I)" == periodicidadeDisciplina(a, c)
-          ? 0 == disciplinaConflitanteQuinzenal(a, c, 1)
-              ? (r[c] = "quinzena1")
-              : verificaDisciplinaSelecionada(a, c)
-              ? (o[c] = "repetidaquinzena1")
-              : (l[c] = "ativaralerta")
-          : " - quinzenal (II)" == periodicidadeDisciplina(a, c) && (0 == disciplinaConflitanteQuinzenal(a, c, 2) ? (r[c] = "quinzena2") : verificaDisciplinaSelecionada(a, c) ? (o[c] = "repetidaquinzena2") : (l[c] = "ativaralerta")),
-          c++;
-  c = 0;
-  for (var t = !1; c < i; ) 1 == t || ("ativaralerta" == l[c] && (t = !0)), c++;
-  if (1 == t) alertaCalendario(a);
-  else if (0 == t)
-      if ("repetidasemanal" == o[(c = 0)] || "repetidaquinzena1" == o[c] || "repetidaquinzena2" == o[c]) {
-          for (; c < i; ) "repetidasemanal" == o[c] ? limpacorCalendarioSemanal(a, c) : "repetidaquinzena1" == o[c] ? limpacorCalendarioQuinzenal(a, c, 1) : "repetidaquinzena2" == o[c] && limpacorCalendarioQuinzenal(a, c, 2), c++;
-          removeDisciplina(n), removeCodigo(d);
-      } else
-          for (insereDisciplina(n), insereCodigo(d), c = 0; c < i; )
-              "semanal" == r[c] ? pintarCalendarioSemanal(a, c) : "quinzena1" == r[c] ? pintarCalendarioQuinzenal(a, c, 1) : "quinzena2" == r[c] && pintarCalendarioQuinzenal(a, c, 2), c++;
-  removeClasses(), repreencherDisciplinas();
-  for (var u = 0; u < disciplinas.length; ) {
-      var p = "input[value=" + disciplinas[u] + "]";
-      validaLinha($(p)[0]), u++;
-  }
-  mesmaDisciplina(), controlaMesmoCodigo(), atualizaTPI();
+function verificacao(inputElement) {
+    const disciplineDays = quantosDias(inputElement);
+    const elementId = inputElement.id;
+    const disciplineValue = inputElement.value;
+
+    // Extract discipline code
+    const disciplineCode = window.todasDisciplinas[elementId].codigo
+        .split('')
+        .filter(char => char !== '-')
+        .join('');
+
+    // Analyze periodicity for each day
+    const periodicityStatus = Array(disciplineDays).fill().map((_, dayIndex) => {
+        const periodicity = periodicidadeDisciplina(inputElement, dayIndex);
+
+        switch (periodicity) {
+            case ' - semanal':
+                return disciplinaConflitanteSemanal(inputElement, dayIndex)
+                    ? (verificaDisciplinaSelecionada(inputElement, dayIndex)
+                        ? 'repetidasemanal'
+                        : 'ativaralerta')
+                    : 'semanal';
+
+            case ' - quinzenal (I)':
+                return disciplinaConflitanteQuinzenal(inputElement, dayIndex, 1)
+                    ? (verificaDisciplinaSelecionada(inputElement, dayIndex)
+                        ? 'repetidaquinzena1'
+                        : 'ativaralerta')
+                    : 'quinzena1';
+
+            case ' - quinzenal (II)':
+                return disciplinaConflitanteQuinzenal(inputElement, dayIndex, 2)
+                    ? (verificaDisciplinaSelecionada(inputElement, dayIndex)
+                        ? 'repetidaquinzena2'
+                        : 'ativaralerta')
+                    : 'quinzena2';
+
+            default:
+                return null;
+        }
+    });
+
+    // Check if alert is needed
+    const needsAlert = periodicityStatus.some(status => status === 'ativaralerta');
+
+    if (needsAlert) {
+        alertaCalendario(inputElement);
+        return;
+    }
+
+    // Check for repeated disciplines
+    const hasRepeatedDisciplines = periodicityStatus.some(status =>
+        status === 'repetidasemanal' ||
+        status === 'repetidaquinzena1' ||
+        status === 'repetidaquinzena2'
+    );
+
+    if (hasRepeatedDisciplines) {
+        periodicityStatus.forEach((status, index) => {
+            switch (status) {
+                case 'repetidasemanal':
+                    limpacorCalendarioSemanal(inputElement, index);
+                    break;
+                case 'repetidaquinzena1':
+                    limpacorCalendarioQuinzenal(inputElement, index, 1);
+                    break;
+                case 'repetidaquinzena2':
+                    limpacorCalendarioQuinzenal(inputElement, index, 2);
+                    break;
+            }
+        });
+
+        removeDisciplina(disciplineValue);
+        removeCodigo(disciplineCode);
+    } else {
+        insereDisciplina(disciplineValue);
+        insereCodigo(disciplineCode);
+
+        periodicityStatus.forEach((status, index) => {
+            switch (status) {
+                case 'semanal':
+                    pintarCalendarioSemanal(inputElement, index);
+                    break;
+                case 'quinzena1':
+                    pintarCalendarioQuinzenal(inputElement, index, 1);
+                    break;
+                case 'quinzena2':
+                    pintarCalendarioQuinzenal(inputElement, index, 2);
+                    break;
+            }
+        });
+    }
+
+    // Post-processing
+    removeClasses();
+    repreencherDisciplinas();
+    
+    // Revalidate all current disciplines
+    window.disciplinas.forEach(disciplina => {
+        const input = $(`input[value=${disciplina}]`)[0];
+        validaLinha(input);
+    });
+
+    mesmaDisciplina();
+    controlaMesmoCodigo();
+    atualizaTPI();
 }
+
 function aplicarfiltros() {
-  buscaNome(),
-      (1 == $("#sbc")[0].checked && 1 == $("#sa")[0].checked) || (0 == $("#sbc")[0].checked && 0 == $("#sa")[0].checked)
-          ? console.log("Caso null identificado")
-          : 1 == $("#sbc")[0].checked
-          ? buscaCampus("sbc")
-          : 1 == $("#sa")[0].checked && buscaCampus("sa"),
-      (1 == $("#diurno")[0].checked && 1 == $("#noturno")[0].checked) || (0 == $("#diurno")[0].checked && 0 == $("#noturno")[0].checked)
-          ? console.log("Caso null identificado")
-          : 1 == $("#diurno")[0].checked
-          ? buscaTurno("diurno")
-          : 1 == $("#noturno")[0].checked && buscaTurno("noturno"),
-      1 == $("#maisvagas")[0].checked && buscaVagas();
+    // Name search
+    buscaNome();
+
+    // Campus filter
+    if ($("#sbc")[0].checked !== $("#sa")[0].checked) {
+        $("#sbc")[0].checked
+            ? buscaCampus("sbc")
+            : buscaCampus("sa");
+    }
+
+    // Shift filter
+    if ($("#diurno")[0].checked !== $("#noturno")[0].checked) {
+        $("#diurno")[0].checked
+            ? buscaTurno("diurno")
+            : buscaTurno("noturno");
+    }
+
+    // Vacancies filter
+    if ($("#maisvagas")[0].checked) {
+        buscaVagas();
+    }
 }

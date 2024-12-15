@@ -473,3 +473,24 @@ td span.sa {
   color: #006400;
   font-weight: 600
 }
+
+
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0 1rem;
+}
+
+.modal-dialog {
+  max-width: 500px;
+}
+
+.modal-header {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
