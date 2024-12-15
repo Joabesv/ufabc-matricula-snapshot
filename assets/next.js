@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (rawStorageStudent) {
           // use local storage as a cache
           const storageStudent = JSON.parse(rawStorageStudent)
-          resolve(storageStudent)
+          return resolve(storageStudent)
         }
 
 
