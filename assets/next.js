@@ -24,39 +24,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Function to create and show error modal
   function showErrorModal(title, message) {
-    // Create modal dynamically using Bootstrap's modal
-    const modalHtml = `
-          <div class="modal fade" id="enrollmentErrorModal" tabindex="-1" role="dialog">
-              <div class="modal-dialog" role="document">
-                  <div class="modal-content">
-                      <div class="modal-header bg-danger text-white">
-                          <h5 class="modal-title">${title}</h5>
-                          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                              <span aria-hidden="true">&times;</span>
-                          </button>
-                      </div>
-                      <div class="modal-body">
-                          <p class="text-danger">${message}</p>
-                      </div>
-                      <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                      </div>
-                  </div>
-              </div>
+    // Find or create the modal element
+    let modal = document.getElementById('enrollmentErrorModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.classList.add('modal', 'fade');
+      modal.id = 'enrollmentErrorModal';
+      modal.setAttribute('tabindex', '-1');
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-labelledby', 'enrollmentErrorModalLabel');
+      modal.setAttribute('aria-hidden', 'true');
+  
+      modal.innerHTML = `
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+              <h5 class="modal-title" id="enrollmentErrorModalLabel">${title}</h5>
+              <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <p class="text-danger">${message}</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal">Fechar</button>
+            </div>
           </div>
+        </div>
       `;
-
-    // Remove any existing modal first
-    const existingModal = document.getElementById('enrollmentErrorModal');
-    if (existingModal) {
-      existingModal.remove();
+  
+      document.body.appendChild(modal);
     }
-
-    // Add modal to body
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-
-    // Use jQuery to show modal (since jQuery and Bootstrap are already loaded)
-    $('#enrollmentErrorModal').modal('show');
+  
+    // Show the modal
+    $(modal).modal('show');
   }
 
   // Initialize enrollment script
