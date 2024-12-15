@@ -16,7 +16,6 @@ function sigToMatriculaCourseId(matriculaCourseId) {
   return mapping[matriculaCourseId] || matriculaCourseId
 }
 
-document.addEventListener('DOMContentLoaded', function () {
   function fetchStudentInfo() {
     return new Promise((resolve, reject) => {
       // Listen for custom event from extension
@@ -116,8 +115,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Set global variables similar to original script
-    window.cursoAluno = studentData.graduations.map(g => sigToMatriculaCourseId(g.courseId))[0] || 74;
-    window.todasMatriculas = window.matriculas?.[studentData.studentId] || null;
+    window.cursoAluno = studentData.graduations.map(g => sigToMatriculaCourseId(g.courseId))[0];
+    window.todasMatriculas = window.matriculas?.[studentData.studentId];
     const $studentName = document.getElementsByClassName('student')
     const storageStudent = JSON.parse(localStorage.getItem('student'))
     Array.from($studentName).forEach($el => $el.innerText = storageStudent.login)
@@ -153,4 +152,3 @@ document.addEventListener('DOMContentLoaded', function () {
 
       console.error(error)
     });
-});

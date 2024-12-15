@@ -55,8 +55,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Preselect previously enrolled disciplines
-        if (todasMatriculas && todasMatriculas.length) {
-            todasMatriculas.forEach(disciplinaCode => {
+        if (window.todasMatriculas && window.todasMatriculas.length) {
+            window.todasMatriculas.forEach(disciplinaCode => {
                 const checkbox = document.querySelector(`input[value="${disciplinaCode}"]`);
                 if (checkbox) {
                     checkbox.checked = true;
