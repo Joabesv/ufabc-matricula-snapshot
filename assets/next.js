@@ -137,6 +137,10 @@ document.addEventListener('DOMContentLoaded', function () {
         $limited.style.display = 'none'
         $free.style.display = 'none'
       }
-      console.error(error);
+      if (error.message === 'Missing student') {
+        return;
+      }
+
+      console.error(error)
     });
 });
