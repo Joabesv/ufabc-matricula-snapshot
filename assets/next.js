@@ -133,6 +133,10 @@ function sigToMatriculaCourseId(matriculaCourseId) {
   fetchStudentInfo()
     .then(initializeEnrollment)
     .catch(error => {
+      showErrorModal(
+        'Erro de Sistema',
+        'Não foi possível carregar as informações do aluno. Tente novamente mais tarde.'
+      );
       const $mandatory = document.querySelector('#disciplinasobrigatorias')
       const $limited = document.querySelector('#disciplinaslimitadas')
       const $free = document.querySelector('#disciplinaslivres')
@@ -145,10 +149,7 @@ function sigToMatriculaCourseId(matriculaCourseId) {
         return;
       }
 
-      showErrorModal(
-        'Erro de Sistema',
-        'Não foi possível carregar as informações do aluno. Tente novamente mais tarde.'
-      );
+     
 
       console.error(error)
     });
