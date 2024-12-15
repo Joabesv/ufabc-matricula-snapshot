@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
           return reject(new Error('Missing student'))
         }
         const rawStorageStudent = localStorage.getItem('student')
+        const { ra, login } = event.detail
 
 
         if (rawStorageStudent) {
@@ -27,25 +28,27 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-        const { ra, login } = event.detail
 
         fetch(`http://localhost:5000/entities/students/student?ra=${ra}&login=${login}`)
           .then(response => {
             if (!response.ok) {
               throw new Error('Failed to fetch student information');
             }
-            return response.json().then((d) => {
-              localStorage.setItem('student', JSON.stringify({
-                login,
-                ra,
-                studentId: d.studentId,
-                graduations: d.graduations
-              }))
-            })            
+            return response.json()
           })
-          .then(resolve)
+          .then(studentData => {
+            const studentInfo = {
+              login,
+              ra,
+              studentId: studentData.studentId,
+              graduations: studentData.graduations
+            };
+            
+            localStorage.setItem('student', JSON.stringify(studentInfo));
+            resolve(studentInfo);
+          })
           .catch(reject);
-      }, { once: true });
+      });
     });
   }
 
@@ -88,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Initialize enrollment script
   function initializeEnrollment(studentData) {
-    if (!studentData || !studentData.studentId) {
+    if (!studentData || !studentData.studentId) {      
       showErrorModal(
         'Acesso Não Autorizado',
         'Você não utilizou a extensão no periodo de matriculas, logo nao conseguimos fornecer uma amostra.'
@@ -126,6 +129,14 @@ document.addEventListener('DOMContentLoaded', function () {
         'Erro de Sistema',
         'Não foi possível carregar as informações do aluno. Tente novamente mais tarde.'
       );
+      const $mandatory = document.querySelector('#disciplinasobrigatorias')
+      const $limited = document.querySelector('#disciplinaslimitadas')
+      const $free = document.querySelector('#disciplinaslivres')
+      if ($mandatory || $limited || $free) {
+        $mandatory.style.display = 'none'
+        $limited.style.display = 'none'
+        $free.style.display = 'none'
+      }
       console.error(error);
     });
 });
