@@ -125,10 +125,6 @@ document.addEventListener('DOMContentLoaded', function () {
   fetchStudentInfo()
     .then(initializeEnrollment)
     .catch(error => {
-      showErrorModal(
-        'Erro de Sistema',
-        'Não foi possível carregar as informações do aluno. Tente novamente mais tarde.'
-      );
       const $mandatory = document.querySelector('#disciplinasobrigatorias')
       const $limited = document.querySelector('#disciplinaslimitadas')
       const $free = document.querySelector('#disciplinaslivres')
@@ -140,6 +136,11 @@ document.addEventListener('DOMContentLoaded', function () {
       if (error.message === 'Missing student') {
         return;
       }
+
+      showErrorModal(
+        'Erro de Sistema',
+        'Não foi possível carregar as informações do aluno. Tente novamente mais tarde.'
+      );
 
       console.error(error)
     });
