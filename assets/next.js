@@ -8,23 +8,48 @@ function sigToMatriculaCourseId(matriculaCourseId) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+  const ALLOWED_ORIGINS = ['chrome-extension://gphjopenfpnlnffmhhhhdiecgdcopmhk']
   function fetchStudentInfo() {
-    return fetch('http://localhost:5000/entities/students/student?ra=11202232364&login=joabe.silva')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to fetch student information');
+    return new Promise((resolve, reject) => {
+      // Listen for custom event from extension
+
+      document.addEventListener('student-info', function(event) {
+        if (!event.detail.hasStudent) {
+          return reject(new Error('Missing student'))
         }
-        return response.json();
-      })
-      .catch(error => {
-        console.error('Error fetching student info:', error);
-        return null;
-      });
+        const rawStorageStudent = localStorage.getItem('student')
+
+
+        if (rawStorageStudent) {
+          // use local storage as a cache
+          const storageStudent = JSON.parse(rawStorageStudent)
+          resolve(storageStudent)
+        }
+
+
+        const { ra, login } = event.detail
+
+        fetch(`http://localhost:5000/entities/students/student?ra=${ra}&login=${login}`)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Failed to fetch student information');
+            }
+            return response.json().then((d) => {
+              localStorage.setItem('student', JSON.stringify({
+                login,
+                ra,
+                studentId: d.studentId,
+                graduations: d.graduations
+              }))
+            })            
+          })
+          .then(resolve)
+          .catch(reject);
+      }, { once: true });
+    });
   }
 
-  // Function to create and show error modal
   function showErrorModal(title, message) {
-    // Find or create the modal element
     let modal = document.getElementById('enrollmentErrorModal');
     if (!modal) {
       modal = document.createElement('div');
@@ -81,6 +106,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Set global variables similar to original script
     window.cursoAluno = studentData.graduations.map(g => sigToMatriculaCourseId(g.courseId))[0] || 74;
     window.todasMatriculas = window.matriculas?.[studentData.studentId] || null;
+    const $studentName = document.getElementsByClassName('student')
+    const storageStudent = JSON.parse(localStorage.getItem('student'))
+    Array.from($studentName).forEach($el => $el.innerText = storageStudent.login)
 
     const courseSelect = document.getElementById('curso');
     if (courseSelect && studentData.courseId) {

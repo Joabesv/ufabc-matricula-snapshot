@@ -40,7 +40,6 @@ function quantosDias(elemento) {
 
 function periodicidadeDisciplina(elemento, indice) {
     const id = elemento.id;
-    console.log(id)
     return window.todasDisciplinas[id].horarios[indice].periodicidade_extenso;
 }
 
