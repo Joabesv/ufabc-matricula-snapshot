@@ -1,3 +1,12 @@
+function resolveEndpoint() {
+  const origin = new URL(document.location.href).origin
+  if (origin.includes('localhost')) {
+    return 'http://localhost:5000'
+  }
+  
+  return 'https://api.v2.ufabcnext.com'
+}
+
 function sigToMatriculaCourseId(matriculaCourseId) {
   const mapping = {
     73710: 74,
@@ -8,7 +17,6 @@ function sigToMatriculaCourseId(matriculaCourseId) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  const ALLOWED_ORIGINS = ['chrome-extension://gphjopenfpnlnffmhhhhdiecgdcopmhk']
   function fetchStudentInfo() {
     return new Promise((resolve, reject) => {
       // Listen for custom event from extension
@@ -29,7 +37,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-        fetch(`http://localhost:5000/entities/students/student?ra=${ra}&login=${login}`)
+        const nextURL = resolveEndpoint()
+        fetch(`${nextURL}/entities/students/student?ra=${ra}&login=${login}`)
           .then(response => {
             if (!response.ok) {
               throw new Error('Failed to fetch student information');
